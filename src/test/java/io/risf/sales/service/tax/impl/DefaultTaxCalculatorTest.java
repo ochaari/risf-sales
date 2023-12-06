@@ -29,6 +29,7 @@ class DefaultTaxCalculatorTest {
     @Autowired
     private DefaultTaxCalculator taxCalculator;
 
+
     private static Stream<Arguments> invalidStoredProducts() {
         Product product = new Product(1L, "Bottle of perfume", null);
 

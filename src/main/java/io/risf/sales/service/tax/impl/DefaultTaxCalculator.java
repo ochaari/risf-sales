@@ -2,9 +2,12 @@ package io.risf.sales.service.tax.impl;
 
 import io.risf.sales.dto.ReceiptItem;
 import io.risf.sales.model.Product;
+import io.risf.sales.service.rounder.DefaultRoundingStrategy;
+import io.risf.sales.service.rounder.RoundingStrategy;
 import io.risf.sales.service.tax.TaxAmountProvider;
 import io.risf.sales.service.tax.TaxCalculator;
 import io.risf.sales.service.validator.Validator;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,6 +21,9 @@ public class DefaultTaxCalculator implements TaxCalculator {
     private final TaxAmountProvider taxAmountProvider;
     private final Validator<ReceiptItem> receiptItemValidator;
     private final Validator<Product> productValidator;
+
+    @Setter
+    private RoundingStrategy roundingStrategy;
 
     public DefaultTaxCalculator(TaxAmountProvider taxAmountProvider, Validator<ReceiptItem> receiptItemValidator, Validator<Product> productValidator) {
         this.taxAmountProvider = taxAmountProvider;
@@ -49,11 +55,16 @@ public class DefaultTaxCalculator implements TaxCalculator {
 
     /**
      * @param taxAmount the tax amount to be rounded
-     * @return the tax amount rounded up to the nearest 0.05
+     * @return the tax amount rounded up to the nearest 0.05 by default
+     * we can change the rounding by implementing the Rounding strategy interface & setting it to the bean.
      */
     @Override
     public double roundTax(double taxAmount) {
-        double roundedTax = Math.ceil(taxAmount * 20) / 20;
+        if (roundingStrategy == null){
+            logger.warn("No specified rounding strategy found. Falling back to the default rounding strategy");
+            roundingStrategy = new DefaultRoundingStrategy();
+        }
+        double roundedTax = roundingStrategy.round(taxAmount);
         logger.debug("Total tax after rounding {}", roundedTax);
         return roundedTax;
     }

@@ -3,12 +3,8 @@ package io.risf.sales.commands;
 import io.risf.sales.dto.ReceiptItem;
 import io.risf.sales.dto.ReceiptOutput;
 import io.risf.sales.service.calculator.SalesRowProcessor;
-import io.risf.sales.service.outputter.OutputType;
 import io.risf.sales.service.outputter.Outputter;
-import io.risf.sales.service.outputter.OutputterFactory;
-import io.risf.sales.service.outputter.impl.JSONOutputterFactory;
-import io.risf.sales.service.outputter.impl.OutputterFactoryProvider;
-import io.risf.sales.service.outputter.impl.TextOutputterFactory;
+import io.risf.sales.service.outputter.impl.OutputterFactory;
 import io.risf.sales.service.parser.InputParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,13 +83,7 @@ public class SalesCommand {
     private Outputter resolveOutputter(String outputType) {
         logger.debug("resolved the outputter for the type {}", outputType);
         outputType = outputType.toUpperCase();
-        OutputterFactoryProvider.registerFactory(OutputType.TEXT.name(), new TextOutputterFactory());
-        OutputterFactoryProvider.registerFactory(OutputType.JSON.name(), new JSONOutputterFactory());
-
-        OutputterFactory outputterFactory = OutputterFactoryProvider.getFactory(outputType);
-
-        logger.debug("Outputter resolved successfully");
-        return outputterFactory.createOutputter();
+        return OutputterFactory.getFactory(outputType);
     }
 
     /**
